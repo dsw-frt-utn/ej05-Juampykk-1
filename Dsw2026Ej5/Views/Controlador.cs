@@ -15,6 +15,11 @@ public class Controlador
         return vehiculos;
     }
 
+    public static List<Sucursal> GetSucursales()
+    {
+        return Persistencia.GetSucursales();
+    }
+
     public static (double, double) CalcularConsumos(Dictionary<string, double> vehiculos)
     {
         double consumoElectricos = 0;
@@ -31,5 +36,28 @@ public class Controlador
             }
         }
         return (consumoElectricos, consumoCombustible);
+    }
+
+    public static void AgregarVehiculo(VehiculoTipo tipo, string patente, string marca, string modelo, int anio, 
+        double capacidadCarga, string sucursalCodigo, double parametro1, double parametro2 = 0)
+    {
+        Sucursal? sucursal = Persistencia.GetSucursales().Find(s => s.GetCodigo() == sucursalCodigo);
+        if (sucursal == null)
+        {
+            throw new ArgumentException("Sucursal no encontrada");
+        }
+
+        Vehiculo vehiculo;
+        if (tipo == VehiculoTipo.Electrico)
+        {
+            vehiculo = new VehiculoElectrico(patente, marca, modelo, anio, capacidadCarga, sucursal, parametro1);
+        }
+        else
+        {
+            // For combustible: parametro1 = kmPorLitro, parametro2 = litrosExtra
+            vehiculo = new VehiculoCombustible(patente, marca, modelo, anio, capacidadCarga, sucursal, parametro1, parametro2);
+        }
+
+        Persistencia.AgregarVehiculo(vehiculo);
     }
 }
